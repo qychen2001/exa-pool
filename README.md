@@ -38,62 +38,7 @@
 2. 然后在控制台执行以下 SQL 命令初始化数据库：
 
 ```sql
--- Exa API 密钥表
-CREATE TABLE IF NOT EXISTS exa_keys (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  key TEXT UNIQUE NOT NULL,
-  status TEXT DEFAULT 'active' CHECK(status IN ('active', 'exhausted', 'invalid')),
-  last_used TEXT,
-  created_at TEXT DEFAULT (datetime('now')),
-  error_message TEXT,
-  success_count INTEGER DEFAULT 0
-);
-
--- 允许访问的 API Key 表
-CREATE TABLE IF NOT EXISTS allowed_keys (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  key TEXT UNIQUE NOT NULL,
-  name TEXT,
-  created_at TEXT DEFAULT (datetime('now'))
-);
-
--- 请求统计表
-CREATE TABLE IF NOT EXISTS request_stats (
-  id INTEGER PRIMARY KEY CHECK(id = 1),
-  total_success INTEGER DEFAULT 0,
-  total_failure INTEGER DEFAULT 0
-);
-
--- 初始化请求统计
-INSERT OR IGNORE INTO request_stats (id, total_success, total_failure) VALUES (1, 0, 0);
-
--- 轮询状态表（记录当前轮询位置）
-CREATE TABLE IF NOT EXISTS round_robin_state (
-  id INTEGER PRIMARY KEY CHECK(id = 1),
-  last_key_id INTEGER DEFAULT 0
-);
-
--- 系统配置表
-CREATE TABLE IF NOT EXISTS config (
-  key TEXT PRIMARY KEY,
-  value TEXT NOT NULL
-);
-
--- 初始化轮询状态
-INSERT OR IGNORE INTO round_robin_state (id, last_key_id) VALUES (1, 0);
-
--- Research 任务与密钥映射表（用于 Deep Research 任务追踪）
-CREATE TABLE IF NOT EXISTS research_tasks (
-  id TEXT PRIMARY KEY,
-  exa_key_id INTEGER NOT NULL,
-  created_at TEXT DEFAULT (datetime('now')),
-  FOREIGN KEY (exa_key_id) REFERENCES exa_keys(id) ON DELETE CASCADE
-);
-
--- 创建索引以提升查询性能
-CREATE INDEX IF NOT EXISTS idx_exa_keys_status ON exa_keys(status);
-CREATE INDEX IF NOT EXISTS idx_allowed_keys_key ON allowed_keys(key);
-CREATE INDEX IF NOT EXISTS idx_research_tasks_exa_key_id ON research_tasks(exa_key_id);
+CREATE TABLE IF NOT EXISTS exa_keys (id INTEGER PRIMARY KEY AUTOINCREMENT, key TEXT UNIQUE NOT NULL, status TEXT DEFAULT 'active' CHECK(status IN ('active', 'exhausted', 'invalid')), last_used TEXT, created_at TEXT DEFAULT (datetime('now')), error_message TEXT, success_count INTEGER DEFAULT 0); CREATE TABLE IF NOT EXISTS allowed_keys (id INTEGER PRIMARY KEY AUTOINCREMENT, key TEXT UNIQUE NOT NULL, name TEXT, created_at TEXT DEFAULT (datetime('now'))); CREATE TABLE IF NOT EXISTS request_stats (id INTEGER PRIMARY KEY CHECK(id = 1), total_success INTEGER DEFAULT 0, total_failure INTEGER DEFAULT 0); INSERT OR IGNORE INTO request_stats (id, total_success, total_failure) VALUES (1, 0, 0); CREATE TABLE IF NOT EXISTS round_robin_state (id INTEGER PRIMARY KEY CHECK(id = 1), last_key_id INTEGER DEFAULT 0); CREATE TABLE IF NOT EXISTS config (key TEXT PRIMARY KEY, value TEXT NOT NULL); INSERT OR IGNORE INTO round_robin_state (id, last_key_id) VALUES (1, 0); CREATE TABLE IF NOT EXISTS research_tasks (id TEXT PRIMARY KEY, exa_key_id INTEGER NOT NULL, created_at TEXT DEFAULT (datetime('now')), FOREIGN KEY (exa_key_id) REFERENCES exa_keys(id) ON DELETE CASCADE); CREATE INDEX IF NOT EXISTS idx_exa_keys_status ON exa_keys(status); CREATE INDEX IF NOT EXISTS idx_allowed_keys_key ON allowed_keys(key); CREATE INDEX IF NOT EXISTS idx_research_tasks_exa_key_id ON research_tasks(exa_key_id);
 ```
 
 <img width="1652" height="686" alt="image" src="https://github.com/user-attachments/assets/97003169-2186-4dfb-9d2c-19df2dbaf29a" />

@@ -2928,8 +2928,10 @@ async function executeResearchCreate(env, body) {
         const responseBody = await result.response.text();
         try {
           const responseData = JSON.parse(responseBody);
-          if (responseData.id) {
-            await saveResearchTaskMapping(env.DB, responseData.id, keyData.id);
+          // Exa API 返回的字段是 researchId
+          const taskId = responseData.researchId || responseData.id;
+          if (taskId) {
+            await saveResearchTaskMapping(env.DB, taskId, keyData.id);
           }
         } catch (e) {
           console.error('Failed to parse research response:', e);
